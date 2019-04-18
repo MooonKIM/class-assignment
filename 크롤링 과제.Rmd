@@ -1,0 +1,81 @@
+---
+title: "Crawling"
+author: "Moonjeong"
+date: "2019년 4월 18일"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(httr)
+library(urltools)
+library(rvest)
+
+```
+
+
+# 1. 다음 실시간 검색어 수집
+```{r}
+res <- GET(url = 'https://www.daum.net/')
+
+```
+
+```{r}
+print(x = res)
+
+```
+
+```{r}
+searchWords <- res %>% 
+  read_html() %>% 
+  html_nodes(css = 'div.realtime_part > ol > li > div > div:nth-child(1) > span.txt_issue > a') %>% 
+  html_text(trim = TRUE)
+
+```
+
+```{r}
+print(x = searchWords)
+
+```
+
+#2.네이버증권국내증시KOSPI페이지에서상단에있는표수집
+'https://finance.naver.com/sise/sise_index.nhn?code=KOSPI'
+
+```{r}
+res <- GET(url = 'https://finance.naver.com/sise/sise_index.nhn?code=KOSPI')      
+print(x=res)
+```
+
+```{r}
+print(x = res$request)
+
+```
+##인코딩 문제 발생! read_html(x=res, incoding='UTF-8') 이 안 된다.
+```{r}
+
+
+res %>% 
+  read_html() %>% 
+  html_node(css = '#contentarea_left > div.box_top_sub > div > div.subtop_sise_detail > table')
+
+
+Sys.setlocale(category = 'LC_ALL', locale = 'C')
+
+tbl <- res %>% 
+  read_html() %>% 
+  html_node(css = 'table.sale_list') %>% 
+  html_table(fill = TRUE)
+
+
+
+```
+
+```{r}
+
+Sys.setlocale(category = 'LC_ALL', locale = 'korean')
+
+glimpse(x = tbl)
+
+
+```
+
